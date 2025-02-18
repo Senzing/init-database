@@ -3,6 +3,7 @@ name: Go test darwin
 on: [pull_request, workflow_dispatch]
 
 env:
+  CGO_LDFLAGS: "-Wl,-no_warn_duplicate_libraries"
   DYLD_LIBRARY_PATH: /opt/senzing/er/lib:/opt/senzing/er/lib/macos
   LD_LIBRARY_PATH: /opt/senzing/er/lib:/opt/senzing/er/lib/macos
   SENZING_TOOLS_DATABASE_URL: sqlite3://na:na@nowhere/tmp/sqlite/G2C.db
@@ -36,10 +37,21 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Copy /opt/senzing/er/resources/ files
+        run: |
+          sudo cp -v -R rootfs/opt/* /opt
+
       - name: Install Senzing SDK
         uses: senzing-factory/github-action-install-senzing-sdk@v2
         with:
           senzingsdk-repository-path: ${{ secrets.SENZING_OSX_BETA_REPOSITORY }}
+
+      # - name: install senzingapi-setup
+      #   run: |
+      #     sudo SENZING_ACCEPT_EULA=I_ACCEPT_THE_SENZING_EULA apt-get -y install senzingapi-setup
+      #     sudo apt list | grep senzing
+      #     owner="$(whoami)"
+      #     sudo chown -R "${owner}":"${owner}" /opt/senzing
 
       - name: Run go test
         run: go test -exec /Users/runner/work/init-database/init-database/bin/macos_exec_dyld.sh -json -v -p 1 -coverprofile=./cover.out -covermode=atomic -coverpkg=./... ./...  2>&1 | tee /tmp/gotest.log | gotestfmt

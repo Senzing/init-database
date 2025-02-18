@@ -34,10 +34,22 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # - name: Copy /opt/senzing/er/resources/ files
+      #   run: |
+      #     Copy-Item -Path c:\test\ -Destination c:\test2\ -Recurse
+      #       cp --verbose --recursive rootfs/* /
+
       - name: Install Senzing SDK
         uses: senzing-factory/github-action-install-senzing-sdk@v2
         with:
           senzingsdk-repository-path: ${{ secrets.SENZING_WIN_BETA_REPOSITORY }}
+
+      # - name: install senzingapi-setup
+      #   run: |
+      #     sudo SENZING_ACCEPT_EULA=I_ACCEPT_THE_SENZING_EULA apt-get -y install senzingapi-setup
+      #     sudo apt list | grep senzing
+      #     owner="$(whoami)"
+      #     sudo chown -R "${owner}":"${owner}" /opt/senzing
 
       - name: Add to "Path" environment variable
         run: |
